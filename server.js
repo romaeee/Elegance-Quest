@@ -8,7 +8,7 @@ const port = 5000;
 app.use(cors());
 app.use(express.json());
 
-const uri = "mongodb+srv://romaeee:<password>@cluster0.8wmo1.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const uri = "mongodb+srv://romaeee:<password>@cluster0.8wmo1.mongodb.net/Game-Test?retryWrites=true&w=majority&appName=Cluster0";
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
