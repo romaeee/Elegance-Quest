@@ -20,6 +20,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "global.d.ts"],
+  "include": ["src", "global.d.ts", "playfabConfig.js"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

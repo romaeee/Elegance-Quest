@@ -15,29 +15,18 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [count, setCount] = useState<number>(0);
   const [userData, setUserData] = useState<UserData | null>(null);
-  const [log, setLog] = useState<string>('');
 
   useEffect(() => {
     const loadClickCount = async () => {
       try {
-        console.log('WebApp:', WebApp); // Добавьте отладочный вывод
-        console.log('WebApp.cloudStorage:', WebApp.cloudStorage); // Проверка доступности cloudStorage
-        if (WebApp.cloudStorage) {
-          const savedData = await WebApp.cloudStorage.get('clickCount');
-          if (savedData && savedData.clickCount !== undefined) {
-            setCount(parseInt(savedData.clickCount));
-            setLog(`Loaded count: ${savedData.clickCount}`);
-          } else {
-            setLog('No count found in CloudStorage.');
-          }
-        } else {
-          setLog('cloudStorage is not available.');
+        const savedData = await WebApp.cloudStorage.get('clickCount');
+        if (savedData && savedData.clickCount !== undefined) {
+          setCount(parseInt(savedData.clickCount));
         }
       } catch (error) {
-        setLog(`Error loading count from CloudStorage: ${error}`);
         console.error('Ошибка при загрузке данных из CloudStorage:', error);
       } finally {
-        setIsLoading(false);
+        setIsLoading(false); // Ставим false только после попытки загрузки данных
       }
     };
 
@@ -47,22 +36,14 @@ function App() {
   useEffect(() => {
     const saveClickCount = async () => {
       try {
-        console.log('WebApp:', WebApp); // Добавьте отладочный вывод
-        console.log('WebApp.cloudStorage:', WebApp.cloudStorage); // Проверка доступности cloudStorage
-        if (WebApp.cloudStorage) {
-          await WebApp.cloudStorage.set('clickCount', count.toString());
-          setLog(`Saved count: ${count}`);
-        } else {
-          setLog('cloudStorage is not available.');
-        }
+        await WebApp.cloudStorage.set('clickCount', count.toString());
       } catch (error) {
-        setLog(`Error saving count to CloudStorage: ${error}`);
         console.error('Ошибка при сохранении данных в CloudStorage:', error);
       }
     };
 
     if (!isLoading) {
-      saveClickCount();
+      saveClickCount(); // Сохраняем данные только после того, как закончится загрузка
     }
   }, [count, isLoading]);
 
@@ -84,8 +65,7 @@ function App() {
           count is {count}
         </button>
       </div>
-      <p>Log: {log}</p>
-      <p>var 11</p>
+      <p>var 5</p>
     </>
   );
 }
