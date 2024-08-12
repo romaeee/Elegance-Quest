@@ -15,7 +15,8 @@ function App() {
   const [isLoading, setIsLoading] = useState(true); // Состояние для экрана загрузки
   const [count, setCount] = useState<number>(() => {
     // Загрузка числа кликов
-    const savedCount = localStorage.getItem('clickCount');
+    //const savedCount = localStorage.getItem('clickCount');
+    const savedCount = WebApp.CloudStorage.getItem('clickCount');
     return savedCount !== null ? parseInt(savedCount) : 0;
   });
 
@@ -23,7 +24,8 @@ function App() {
 
   // Сохранение числа кликов
   useEffect(() => {
-    localStorage.setItem('clickCount', count.toString());
+    WebApp.CloudStorage.setItem('clickCount', count.toString())
+    //localStorage.setItem('clickCount', count.toString());
   }, [count]);
 
   // Получение данных пользователя из Telegram WebApp
@@ -35,7 +37,7 @@ function App() {
     // Таймер для переключения с экрана загрузки на основной экран через 5 секунд
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 5000);
+    }, 2000);
 
     // Очистка таймера при размонтировании компонента
     return () => clearTimeout(timer);
@@ -55,7 +57,7 @@ function App() {
           count is {count}
         </button>
       </div>
-      <p>var 3</p>
+      <p>var 4</p>
     </>
   );
 }
