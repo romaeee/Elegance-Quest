@@ -15,20 +15,24 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [count, setCount] = useState<number>(0);
   const [userData, setUserData] = useState<UserData | null>(null);
+  const [log, setLog] = useState<string>(''); // Состояние для логов
 
   useEffect(() => {
     const loadClickCount = async () => {
-      // try {
+      try {
         const savedData = await WebApp.cloudStorage.get('clickCount');
         if (savedData && savedData.clickCount !== undefined) {
           setCount(parseInt(savedData.clickCount));
-          setIsLoading(false);
+          setLog(`Loaded count: ${savedData.clickCount}`); // Логируем успешную загрузку
+        } else {
+          setLog('No count found in CloudStorage.'); // Логируем отсутствие данных
         }
-      // } catch (error) {
-      //   console.error('Ошибка при загрузке данных из CloudStorage:', error);
-      // } finally {
-      //   setIsLoading(false); // Ставим false только после попытки загрузки данных
-      // }
+      } catch (error) {
+        setLog('Error loading count from CloudStorage.'); // Логируем ошибку
+        console.error('Ошибка при загрузке данных из CloudStorage:', error);
+      } finally {
+        setIsLoading(false); // Ставим false только после попытки загрузки данных
+      }
     };
 
     loadClickCount();
@@ -38,7 +42,9 @@ function App() {
     const saveClickCount = async () => {
       try {
         await WebApp.cloudStorage.set('clickCount', count.toString());
+        setLog(`Saved count: ${count}`); // Логируем успешное сохранение
       } catch (error) {
+        setLog('Error saving count to CloudStorage.'); // Логируем ошибку
         console.error('Ошибка при сохранении данных в CloudStorage:', error);
       }
     };
@@ -66,7 +72,8 @@ function App() {
           count is {count}
         </button>
       </div>
-      <p>var 8</p>
+      <p>Log: {log}</p> {/* Выводим логи здесь */}
+      <p>var 9</p>
     </>
   );
 }
