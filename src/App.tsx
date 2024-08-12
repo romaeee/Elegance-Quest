@@ -19,14 +19,14 @@ function App() {
   useEffect(() => {
     const loadClickCount = async () => {
       try {
-        const savedCount = await WebApp.cloudStorage.get('clickCount');
-        if (savedCount !== null && savedCount.clickCount !== undefined) {
-          setCount(parseInt(savedCount.clickCount));
+        const savedData = await WebApp.cloudStorage.get('clickCount');
+        if (savedData && savedData.clickCount !== undefined) {
+          setCount(parseInt(savedData.clickCount));
         }
       } catch (error) {
         console.error('Ошибка при загрузке данных из CloudStorage:', error);
       } finally {
-        setIsLoading(false);
+        setIsLoading(false); // Ставим false только после попытки загрузки данных
       }
     };
 
@@ -42,8 +42,10 @@ function App() {
       }
     };
 
-    saveClickCount();
-  }, [count]);
+    if (!isLoading) {
+      saveClickCount(); // Сохраняем данные только после того, как закончится загрузка
+    }
+  }, [count, isLoading]);
 
   useEffect(() => {
     if (WebApp.initDataUnsafe.user) {
@@ -63,7 +65,7 @@ function App() {
           count is {count}
         </button>
       </div>
-      <p>var 6</p>
+      <p>var 7</p>
     </>
   );
 }
