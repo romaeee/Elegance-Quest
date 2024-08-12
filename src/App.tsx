@@ -28,7 +28,7 @@ function App() {
           setLog('No count found in CloudStorage.');
         }
       } catch (error) {
-        setLog(`Error loading count from CloudStorage: ${error.message}`);
+        setLog(`Error loading count from CloudStorage: ${error}`);
         console.error('Ошибка при загрузке данных из CloudStorage:', error);
       } finally {
         setIsLoading(false);
@@ -44,7 +44,7 @@ function App() {
         await WebApp.cloudStorage.set('clickCount', count.toString());
         setLog(`Saved count: ${count}`);
       } catch (error) {
-        setLog(`Error saving count to CloudStorage: ${error.message}`);
+        setLog(`Error saving count to CloudStorage: ${error}`);
         console.error('Ошибка при сохранении данных в CloudStorage:', error);
       }
     };
