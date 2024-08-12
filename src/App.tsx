@@ -13,38 +13,17 @@ interface UserData {
 
 function App() {
   const [isLoading, setIsLoading] = useState(true); // Состояние для экрана загрузки
-  const [count, setCount] = useState<number>(0); // Инициализируем count
+  const [count, setCount] = useState<number>(() => {
+    // Загрузка числа кликов
+    const savedCount = localStorage.getItem('clickCount');
+    return savedCount !== null ? parseInt(savedCount) : 0;
+  });
+
   const [userData, setUserData] = useState<UserData | null>(null);
 
-  // Загрузка числа кликов из CloudStorage
+  // Сохранение числа кликов
   useEffect(() => {
-    const loadClickCount = async () => {
-      try {
-        const result = await WebApp.cloudStorage.get('clickCount');
-        if (result) {
-          setCount(parseInt(result));
-        }
-      } catch (error) {
-        console.error('Ошибка при загрузке данных из CloudStorage:', error);
-      } finally {
-        setIsLoading(false); // Снимаем состояние загрузки после загрузки данных
-      }
-    };
-
-    loadClickCount();
-  }, []);
-
-  // Сохранение числа кликов в CloudStorage
-  useEffect(() => {
-    const saveClickCount = async () => {
-      try {
-        await WebApp.cloudStorage.set('clickCount', count.toString());
-      } catch (error) {
-        console.error('Ошибка при сохранении данных в CloudStorage:', error);
-      }
-    };
-
-    saveClickCount();
+    localStorage.setItem('clickCount', count.toString());
   }, [count]);
 
   // Получение данных пользователя из Telegram WebApp
@@ -56,7 +35,7 @@ function App() {
     // Таймер для переключения с экрана загрузки на основной экран через 5 секунд
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 2000);
+    }, 5000);
 
     // Очистка таймера при размонтировании компонента
     return () => clearTimeout(timer);
@@ -75,8 +54,8 @@ function App() {
         <button onClick={() => setCount((count) => count + 1)}>
           count is {count}
         </button>
-        <p>var 2</p>
       </div>
+      <p>var 3</p>
     </>
   );
 }
