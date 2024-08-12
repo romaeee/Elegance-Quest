@@ -12,27 +12,27 @@ interface UserData {
 }
 
 function App() {
-  const [isLoading, setIsLoading] = useState(true); // Состояние для экрана загрузки
-  const [count, setCount] = useState<number>(0); // Инициализируем count с 0
+  const [isLoading, setIsLoading] = useState(true);
+  const [count, setCount] = useState<number>(0);
   const [userData, setUserData] = useState<UserData | null>(null);
 
-  // Загрузка числа кликов из CloudStorage
   useEffect(() => {
     const loadClickCount = async () => {
       try {
         const savedCount = await WebApp.cloudStorage.get('clickCount');
-        if (savedCount !== null) {
-          setCount(parseInt(savedCount));
+        if (savedCount !== null && savedCount.clickCount !== undefined) {
+          setCount(parseInt(savedCount.clickCount));
         }
       } catch (error) {
         console.error('Ошибка при загрузке данных из CloudStorage:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     loadClickCount();
   }, []);
 
-  // Сохранение числа кликов в CloudStorage
   useEffect(() => {
     const saveClickCount = async () => {
       try {
@@ -45,27 +45,16 @@ function App() {
     saveClickCount();
   }, [count]);
 
-  // Получение данных пользователя из Telegram WebApp
   useEffect(() => {
     if (WebApp.initDataUnsafe.user) {
       setUserData(WebApp.initDataUnsafe.user as UserData);
     }
-
-    // Таймер для переключения с экрана загрузки на основной экран через 5 секунд
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 2000);
-
-    // Очистка таймера при размонтировании компонента
-    return () => clearTimeout(timer);
   }, []);
 
   if (isLoading) {
-    // Экран загрузки
     return <h1>Loading...</h1>;
   }
 
-  // Основной экран
   return (
     <>
       <h1>{userData ? userData.first_name : 'Player'}</h1>
