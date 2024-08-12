@@ -20,12 +20,18 @@ function App() {
   useEffect(() => {
     const loadClickCount = async () => {
       try {
-        const savedData = await WebApp.cloudStorage.get('clickCount');
-        if (savedData && savedData.clickCount !== undefined) {
-          setCount(parseInt(savedData.clickCount));
-          setLog(`Loaded count: ${savedData.clickCount}`);
+        console.log('WebApp:', WebApp); // Добавьте отладочный вывод
+        console.log('WebApp.cloudStorage:', WebApp.cloudStorage); // Проверка доступности cloudStorage
+        if (WebApp.cloudStorage) {
+          const savedData = await WebApp.cloudStorage.get('clickCount');
+          if (savedData && savedData.clickCount !== undefined) {
+            setCount(parseInt(savedData.clickCount));
+            setLog(`Loaded count: ${savedData.clickCount}`);
+          } else {
+            setLog('No count found in CloudStorage.');
+          }
         } else {
-          setLog('No count found in CloudStorage.');
+          setLog('cloudStorage is not available.');
         }
       } catch (error) {
         setLog(`Error loading count from CloudStorage: ${error}`);
@@ -41,8 +47,14 @@ function App() {
   useEffect(() => {
     const saveClickCount = async () => {
       try {
-        await WebApp.cloudStorage.set('clickCount', count.toString());
-        setLog(`Saved count: ${count}`);
+        console.log('WebApp:', WebApp); // Добавьте отладочный вывод
+        console.log('WebApp.cloudStorage:', WebApp.cloudStorage); // Проверка доступности cloudStorage
+        if (WebApp.cloudStorage) {
+          await WebApp.cloudStorage.set('clickCount', count.toString());
+          setLog(`Saved count: ${count}`);
+        } else {
+          setLog('cloudStorage is not available.');
+        }
       } catch (error) {
         setLog(`Error saving count to CloudStorage: ${error}`);
         console.error('Ошибка при сохранении данных в CloudStorage:', error);
@@ -73,7 +85,7 @@ function App() {
         </button>
       </div>
       <p>Log: {log}</p>
-      <p>var 10</p>
+      <p>var 11</p>
     </>
   );
 }
