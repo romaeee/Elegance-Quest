@@ -13,7 +13,7 @@ interface UserData {
 
 function App() {
   const [isLoading, setIsLoading] = useState(true); // Состояние для экрана загрузки
-  const [count, setCount] = useState<number>(1);
+  const [count, setCount] = useState<number>(0); // Инициализируем count
   const [userData, setUserData] = useState<UserData | null>(null);
 
   // Загрузка числа кликов из CloudStorage
@@ -56,7 +56,7 @@ function App() {
     // Таймер для переключения с экрана загрузки на основной экран через 5 секунд
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 5000);
+    }, 2000);
 
     // Очистка таймера при размонтировании компонента
     return () => clearTimeout(timer);
@@ -75,8 +75,8 @@ function App() {
         <button onClick={() => setCount((count) => count + 1)}>
           count is {count}
         </button>
+        <p>var 2</p>
       </div>
-      <p>var 1</p>
     </>
   );
 }
