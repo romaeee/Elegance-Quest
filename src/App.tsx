@@ -15,7 +15,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [count, setCount] = useState<number>(0);
   const [userData, setUserData] = useState<UserData | null>(null);
-  const [log, setLog] = useState<string>(''); // Состояние для логов
+  const [log, setLog] = useState<string>('');
 
   useEffect(() => {
     const loadClickCount = async () => {
@@ -23,15 +23,15 @@ function App() {
         const savedData = await WebApp.cloudStorage.get('clickCount');
         if (savedData && savedData.clickCount !== undefined) {
           setCount(parseInt(savedData.clickCount));
-          setLog(`Loaded count: ${savedData.clickCount}`); // Логируем успешную загрузку
+          setLog(`Loaded count: ${savedData.clickCount}`);
         } else {
-          setLog('No count found in CloudStorage.'); // Логируем отсутствие данных
+          setLog('No count found in CloudStorage.');
         }
       } catch (error) {
-        setLog('Error loading count from CloudStorage.'); // Логируем ошибку
+        setLog(`Error loading count from CloudStorage: ${error.message}`);
         console.error('Ошибка при загрузке данных из CloudStorage:', error);
       } finally {
-        setIsLoading(false); // Ставим false только после попытки загрузки данных
+        setIsLoading(false);
       }
     };
 
@@ -42,15 +42,15 @@ function App() {
     const saveClickCount = async () => {
       try {
         await WebApp.cloudStorage.set('clickCount', count.toString());
-        setLog(`Saved count: ${count}`); // Логируем успешное сохранение
+        setLog(`Saved count: ${count}`);
       } catch (error) {
-        setLog('Error saving count to CloudStorage.'); // Логируем ошибку
+        setLog(`Error saving count to CloudStorage: ${error.message}`);
         console.error('Ошибка при сохранении данных в CloudStorage:', error);
       }
     };
 
     if (!isLoading) {
-      saveClickCount(); // Сохраняем данные только после того, как закончится загрузка
+      saveClickCount();
     }
   }, [count, isLoading]);
 
@@ -72,8 +72,8 @@ function App() {
           count is {count}
         </button>
       </div>
-      <p>Log: {log}</p> {/* Выводим логи здесь */}
-      <p>var 9</p>
+      <p>Log: {log}</p>
+      <p>var 10</p>
     </>
   );
 }
