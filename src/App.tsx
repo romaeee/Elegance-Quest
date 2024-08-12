@@ -27,7 +27,7 @@ function App() {
       }
     } catch (error) {
       console.error('Failed to load cloud data:', error);
-      return 0; // Вернуть 0 в случае ошибки
+      return 2; // Вернуть 0 в случае ошибки
     }
   };
 
