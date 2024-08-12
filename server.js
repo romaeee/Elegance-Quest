@@ -20,7 +20,7 @@ const client = new MongoClient(uri, {
 client.connect().then(() => {
   console.log("Connected to MongoDB");
 
-  const db = client.db("tele_app");
+  const db = client.db("Game-Test");
   const collection = db.collection("clicks");
 
   // Получить количество кликов по userId
