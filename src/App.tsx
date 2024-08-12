@@ -45,15 +45,19 @@ function App() {
     saveCloudData();
   }, [count]);
 
-  // Получение данных пользователя из Telegram WebApp
+  // Загрузка данных пользователя с задержкой в 1 секунду
   useEffect(() => {
-    if (WebApp.initDataUnsafe.user) {
-      setUserData(WebApp.initDataUnsafe.user as UserData);
-      setIsLoading(false); // Завершить загрузку, когда данные получены
-    } else {
-      // Если данных нет, можно добавить обработку ошибки или оставить isLoading на true
-      console.warn('No user data found');
-    }
+    const timer = setTimeout(() => {
+      if (WebApp.initDataUnsafe.user) {
+        setUserData(WebApp.initDataUnsafe.user as UserData);
+        setIsLoading(false); // Завершить загрузку, когда данные получены
+      } else {
+        console.warn('No user data found');
+        setIsLoading(false); // Завершить загрузку даже если данные не найдены
+      }
+    }, 1000); // Задержка 1 секунда
+
+    return () => clearTimeout(timer); // Очистка таймера при размонтировании компонента
   }, []);
 
   if (isLoading) {
