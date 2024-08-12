@@ -16,21 +16,42 @@ function App() {
   const [count, setCount] = useState<number>(0);
   const [userData, setUserData] = useState<UserData | null>(null);
 
-  // Сохранение числа кликов в CloudStorage
-  useEffect(() => {
-    WebApp.cloudStorage.setItem('clickCount', count.toString())
-      .catch(err => console.error('Failed to save count to CloudStorage:', err));
-  }, [count]);
-
   // Загрузка числа кликов из CloudStorage
   useEffect(() => {
-    WebApp.cloudStorage.getItem('clickCount')
-      .then(savedCount => {
-        if (savedCount !== null) {
-          setCount(parseInt(savedCount));
+    const loadClickCount = async () => {
+      try {
+        const result = await WebApp.cloudStorage.get('clickCount');
+        if (result) {
+          setCount(parseInt(result));
         }
-      })
-      .catch(err => console.error('Failed to load count from CloudStorage:', err));
+      } catch (error) {
+        console.error('Ошибка при загрузке данных из CloudStorage:', error);
+      } finally {
+        setIsLoading(false); // Снимаем состояние загрузки после загрузки данных
+      }
+    };
+
+    loadClickCount();
+  }, []);
+
+  // Сохранение числа кликов в CloudStorage
+  useEffect(() => {
+    const saveClickCount = async () => {
+      try {
+        await WebApp.cloudStorage.set('clickCount', count.toString());
+      } catch (error) {
+        console.error('Ошибка при сохранении данных в CloudStorage:', error);
+      }
+    };
+
+    saveClickCount();
+  }, [count]);
+
+  // Получение данных пользователя из Telegram WebApp
+  useEffect(() => {
+    if (WebApp.initDataUnsafe.user) {
+      setUserData(WebApp.initDataUnsafe.user as UserData);
+    }
 
     // Таймер для переключения с экрана загрузки на основной экран через 5 секунд
     const timer = setTimeout(() => {
@@ -39,13 +60,6 @@ function App() {
 
     // Очистка таймера при размонтировании компонента
     return () => clearTimeout(timer);
-  }, []);
-
-  // Получение данных пользователя из Telegram WebApp
-  useEffect(() => {
-    if (WebApp.initDataUnsafe.user) {
-      setUserData(WebApp.initDataUnsafe.user as UserData);
-    }
   }, []);
 
   if (isLoading) {
