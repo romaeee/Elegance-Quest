@@ -12,79 +12,46 @@ interface UserData {
 }
 
 function App() {
-  const [isLoading, setIsLoading] = useState(true); // Состояние загрузки
-  const [count, setCount] = useState<number | null>(null); // Счётчик
+  const [isLoading, setIsLoading] = useState(true); // Состояние для экрана загрузки
+  const [count, setCount] = useState<number>(() => {
+    // Загрузка числа кликов
+    const savedCount = localStorage.getItem('clickCount');
+    return savedCount !== null ? parseInt(savedCount) : 0;
+  });
+
   const [userData, setUserData] = useState<UserData | null>(null);
 
-  // Функция для загрузки данных из облачного хранилища
-  const loadCloudData = async () => {
-    try {
-      const result = await WebApp.cloudStorage.get('clickCount');
-      if (result) {
-        setCount(parseInt(result)); // Установить загруженное значение
-      } else {
-        setCount(0); // Установить 0, если данных нет
-      }
-    } catch (error) {
-      console.error('Failed to load cloud data:', error);
-      setCount(2); // Установить 0 в случае ошибки
-    } finally {
-      setIsLoading(false); // Завершить загрузку после получения данных
-    }
-  };
+  // Сохранение числа кликов
+  useEffect(() => {
+    localStorage.setItem('clickCount', count.toString());
+  }, [count]);
 
-  // Функция для сохранения данных в облачное хранилище
-  const saveCloudData = async (newCount: number) => {
-    try {
-      await WebApp.cloudStorage.set('clickCount', newCount.toString());
-    } catch (error) {
-      console.error('Failed to save cloud data:', error);
-    }
-  };
-
-  // Функция для загрузки данных пользователя
-  const loadUserData = () => {
+  // Получение данных пользователя из Telegram WebApp
+  useEffect(() => {
     if (WebApp.initDataUnsafe.user) {
       setUserData(WebApp.initDataUnsafe.user as UserData);
     }
-  };
 
-  // Загрузка всех данных
-  useEffect(() => {
-    const loadAppData = async () => {
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Задержка 1 секунда
-      loadUserData(); // Загрузка данных пользователя
-      await loadCloudData(); // Загрузка счётчика
-    };
+    // Таймер для переключения с экрана загрузки на основной экран через 5 секунд
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 5000);
 
-    loadAppData();
+    // Очистка таймера при размонтировании компонента
+    return () => clearTimeout(timer);
   }, []);
 
-  // Сохранение данных в облачное хранилище при изменении счётчика
-  useEffect(() => {
-    if (count !== null) {
-      saveCloudData(count);
-    }
-  }, [count]);
-
-  // Увеличение счётчика и сохранение
-  const handleButtonClick = () => {
-    setCount((prevCount) => {
-      const newCount = prevCount !== null ? prevCount + 1 : 1;
-      saveCloudData(newCount); // Сохранить новое значение
-      return newCount;
-    });
-  };
-
-  if (isLoading || count === null) {
+  if (isLoading) {
+    // Экран загрузки
     return <h1>Loading...</h1>;
   }
 
+  // Основной экран
   return (
     <>
       <h1>{userData ? userData.first_name : 'Player'}</h1>
       <div className="card">
-        <button onClick={handleButtonClick}>
+        <button onClick={() => setCount((count) => count + 1)}>
           count is {count}
         </button>
       </div>
