@@ -27,7 +27,7 @@ function App() {
       }
     } catch (error) {
       console.error('Failed to load cloud data:', error);
-      setCount(0); // Установить 0 в случае ошибки
+      setCount(2); // Установить 0 в случае ошибки
     } finally {
       setIsLoading(false); // Завершить загрузку после получения данных
     }
