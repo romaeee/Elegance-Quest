@@ -12,11 +12,11 @@ interface UserData {
 }
 
 function App() {
-  const [isLoading, setIsLoading] = useState(true); // Состояние загрузки
-  const [count, setCount] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState(true); // Loading Status
+  const [count, setCount] = useState<number>(0); // Counter
   const [userData, setUserData] = useState<UserData | null>(null);
 
-  // Загрузка данных из облачного хранилища
+  // Loading from Cloud Storage
   useEffect(() => {
     async function loadCloudData() {
       try {
@@ -32,7 +32,7 @@ function App() {
     loadCloudData();
   }, []);
 
-  // Сохранение данных в облачное хранилище
+  // Saving to Cloud Storage
   useEffect(() => {
     async function saveCloudData() {
       try {
@@ -45,20 +45,25 @@ function App() {
     saveCloudData();
   }, [count]);
 
-  // Загрузка данных пользователя с задержкой в 1 секунду
+  // Delay Loading (temp)
   useEffect(() => {
     const timer = setTimeout(() => {
       if (WebApp.initDataUnsafe.user) {
         setUserData(WebApp.initDataUnsafe.user as UserData);
-        setIsLoading(false); // Завершить загрузку, когда данные получены
+        setIsLoading(false); // Final loading if data get
       } else {
         console.warn('No user data found');
-        setIsLoading(false); // Завершить загрузку даже если данные не найдены
+        setIsLoading(false); // Final loading if data is not loaded
       }
-    }, 1000); // Задержка 1 секунда
+    }, 1000); // Delay 1 sec
 
-    return () => clearTimeout(timer); // Очистка таймера при размонтировании компонента
+    return () => clearTimeout(timer); // Clear timer
   }, []);
+
+  // Increase counter and Saver
+  const handleButtonClick = () => {
+    setCount((prevCount) => prevCount + 1);
+  };
 
   if (isLoading) {
     return <h1>Loading...</h1>;
@@ -68,7 +73,7 @@ function App() {
     <>
       <h1>{userData ? userData.first_name : 'Player'}</h1>
       <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
+        <button onClick={handleButtonClick}>
           count is {count}
         </button>
       </div>
