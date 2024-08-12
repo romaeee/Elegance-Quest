@@ -63,6 +63,7 @@ function App() {
           count is {count}
         </button>
       </div>
+      <p>var 1</p>
     </>
   );
 }
