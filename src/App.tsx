@@ -13,7 +13,7 @@ interface UserData {
 
 function App() {
   const [isLoading, setIsLoading] = useState(true); // Состояние для экрана загрузки
-  const [count, setCount] = useState<number>(0);
+  const [count, setCount] = useState<number>(1);
   const [userData, setUserData] = useState<UserData | null>(null);
 
   // Загрузка числа кликов из CloudStorage
