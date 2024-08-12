@@ -12,51 +12,57 @@ interface UserData {
 }
 
 function App() {
-  const [isLoading, setIsLoading] = useState(true); // Loading Status
-  const [count, setCount] = useState<number>(0); // Counter
+  const [isLoading, setIsLoading] = useState(true); // Состояние загрузки
+  const [count, setCount] = useState<number>(0); // Счётчик
   const [userData, setUserData] = useState<UserData | null>(null);
 
-  // Loading from Cloud Storage
-  useEffect(() => {
-    async function loadCloudData() {
-      try {
-        const result = await WebApp.cloudStorage.get('clickCount');
-        if (result) {
-          setCount(parseInt(result));
-        }
-      } catch (error) {
-        console.error('Failed to load cloud data:', error);
+  // Функция для загрузки данных из облачного хранилища
+  const loadCloudData = async () => {
+    try {
+      const result = await WebApp.cloudStorage.get('clickCount');
+      if (result) {
+        setCount(parseInt(result));
       }
+    } catch (error) {
+      console.error('Failed to load cloud data:', error);
     }
+  };
 
-    const loadAppData = async () => {
-      await loadCloudData(); // Load cloud data first
+  // Функция для загрузки данных пользователя
+  const loadUserData = () => {
+    return new Promise<void>((resolve) => {
       if (WebApp.initDataUnsafe.user) {
         setUserData(WebApp.initDataUnsafe.user as UserData);
       }
-      setIsLoading(false); // Finish loading after all data is retrieved
+      resolve();
+    });
+  };
+
+  // Загрузка всех данных
+  useEffect(() => {
+    const loadAppData = async () => {
+      await new Promise((resolve) => setTimeout(resolve, 1000)); // Задержка 1 секунда
+      await Promise.all([loadCloudData(), loadUserData()]); // Ожидание загрузки данных из облака и пользователя
+      setIsLoading(false); // Завершить загрузку после получения всех данных
     };
 
-    // Wait 1 second before starting to load data
-    const timer = setTimeout(loadAppData, 1000); 
-
-    return () => clearTimeout(timer); // Clear timer
+    loadAppData();
   }, []);
 
-  // Saving to Cloud Storage
+  // Сохранение данных в облачное хранилище
   useEffect(() => {
-    async function saveCloudData() {
+    const saveCloudData = async () => {
       try {
         await WebApp.cloudStorage.set('clickCount', count.toString());
       } catch (error) {
         console.error('Failed to save cloud data:', error);
       }
-    }
+    };
 
     saveCloudData();
   }, [count]);
 
-  // Increase counter and Saver
+  // Увеличение счётчика и сохранение
   const handleButtonClick = () => {
     setCount((prevCount) => prevCount + 1);
   };
