@@ -13,32 +13,48 @@ interface UserData {
 
 function App() {
   const [isLoading, setIsLoading] = useState(true); // Состояние для экрана загрузки
-  const [count, setCount] = useState<number>(() => {
-    // Загрузка числа кликов
-    const savedCount = localStorage.getItem('clickCount');
-    return savedCount !== null ? parseInt(savedCount) : 0;
-  });
-
+  const [count, setCount] = useState<number>(0);
   const [userData, setUserData] = useState<UserData | null>(null);
 
-  // Сохранение числа кликов
+  // Функция для загрузки числа кликов из cloudStorage
+  const loadClickCount = async () => {
+    try {
+      const data = await WebApp.cloudStorage.get('clickCount');
+      if (data !== null) {
+        setCount(parseInt(data));
+      }
+    } catch (error) {
+      console.error('Failed to load click count:', error);
+    }
+  };
+
+  // Функция для сохранения числа кликов в cloudStorage
+  const saveClickCount = async (count: number) => {
+    try {
+      await WebApp.cloudStorage.set('clickCount', count.toString());
+    } catch (error) {
+      console.error('Failed to save click count:', error);
+    }
+  };
+
+  // Сохранение числа кликов при изменении
   useEffect(() => {
-    localStorage.setItem('clickCount', count.toString());
+    saveClickCount(count);
   }, [count]);
 
-  // Получение данных пользователя из Telegram WebApp
+  // Получение данных пользователя из Telegram WebApp и загрузка числа кликов
   useEffect(() => {
     if (WebApp.initDataUnsafe.user) {
       setUserData(WebApp.initDataUnsafe.user as UserData);
     }
 
-    // Таймер для переключения с экрана загрузки на основной экран через 5 секунд
-    const timer = setTimeout(() => {
+    // Загрузка числа кликов из cloudStorage
+    loadClickCount().finally(() => {
       setIsLoading(false);
-    }, 5000);
+    });
 
-    // Очистка таймера при размонтировании компонента
-    return () => clearTimeout(timer);
+    // Очистка эффекта при размонтировании компонента
+    return () => {};
   }, []);
 
   if (isLoading) {
