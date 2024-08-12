@@ -31,6 +31,15 @@ function App() {
     }
   };
 
+  // Функция для сохранения данных в облачное хранилище
+  const saveCloudData = async (newCount: number) => {
+    try {
+      await WebApp.cloudStorage.set('clickCount', newCount.toString());
+    } catch (error) {
+      console.error('Failed to save cloud data:', error);
+    }
+  };
+
   // Функция для загрузки данных пользователя
   const loadUserData = () => {
     return new Promise<void>((resolve) => {
@@ -52,24 +61,20 @@ function App() {
     loadAppData();
   }, []);
 
-  // Сохранение данных в облачное хранилище только после их загрузки
+  // Сохранение данных в облачное хранилище при изменении счётчика
   useEffect(() => {
     if (count !== null) {
-      const saveCloudData = async () => {
-        try {
-          await WebApp.cloudStorage.set('clickCount', count.toString());
-        } catch (error) {
-          console.error('Failed to save cloud data:', error);
-        }
-      };
-
-      saveCloudData();
+      saveCloudData(count);
     }
   }, [count]);
 
   // Увеличение счётчика и сохранение
   const handleButtonClick = () => {
-    setCount((prevCount) => (prevCount !== null ? prevCount + 1 : 1));
+    setCount((prevCount) => {
+      const newCount = prevCount !== null ? prevCount + 1 : 1;
+      saveCloudData(newCount); // Сохранить новое значение
+      return newCount;
+    });
   };
 
   if (isLoading || count === null) {
