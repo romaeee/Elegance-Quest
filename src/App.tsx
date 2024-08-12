@@ -29,7 +29,18 @@ function App() {
       }
     }
 
-    loadCloudData();
+    const loadAppData = async () => {
+      await loadCloudData(); // Load cloud data first
+      if (WebApp.initDataUnsafe.user) {
+        setUserData(WebApp.initDataUnsafe.user as UserData);
+      }
+      setIsLoading(false); // Finish loading after all data is retrieved
+    };
+
+    // Wait 1 second before starting to load data
+    const timer = setTimeout(loadAppData, 1000); 
+
+    return () => clearTimeout(timer); // Clear timer
   }, []);
 
   // Saving to Cloud Storage
@@ -44,21 +55,6 @@ function App() {
 
     saveCloudData();
   }, [count]);
-
-  // Delay Loading (temp)
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (WebApp.initDataUnsafe.user) {
-        setUserData(WebApp.initDataUnsafe.user as UserData);
-        setIsLoading(false); // Final loading if data get
-      } else {
-        console.warn('No user data found');
-        setIsLoading(false); // Final loading if data is not loaded
-      }
-    }, 1000); // Delay 1 sec
-
-    return () => clearTimeout(timer); // Clear timer
-  }, []);
 
   // Increase counter and Saver
   const handleButtonClick = () => {
