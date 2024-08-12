@@ -12,45 +12,43 @@ interface UserData {
 }
 
 function App() {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true); 
   const [count, setCount] = useState<number>(0);
   const [userData, setUserData] = useState<UserData | null>(null);
 
+  // Загрузка и сохранение числа кликов из MongoDB
   useEffect(() => {
-    const loadClickCount = async () => {
-      try {
-        const savedData = await WebApp.cloudStorage.get('clickCount');
-        if (savedData && savedData.clickCount !== undefined) {
-          setCount(parseInt(savedData.clickCount));
-        }
-      } catch (error) {
-        console.error('Ошибка при загрузке данных из CloudStorage:', error);
-      } finally {
-        setIsLoading(false); // Ставим false только после попытки загрузки данных
-      }
-    };
-
-    loadClickCount();
-  }, []);
-
-  useEffect(() => {
-    const saveClickCount = async () => {
-      try {
-        await WebApp.cloudStorage.set('clickCount', count.toString());
-      } catch (error) {
-        console.error('Ошибка при сохранении данных в CloudStorage:', error);
-      }
-    };
-
-    if (!isLoading) {
-      saveClickCount(); // Сохраняем данные только после того, как закончится загрузка
+    if (userData) {
+      fetch(`http://localhost:5000/get-count?userId=${userData.id}`)
+        .then((res) => res.json())
+        .then((data) => {
+          setCount(data);
+        });
     }
-  }, [count, isLoading]);
+  }, [userData]);
+
+  useEffect(() => {
+    if (userData) {
+      fetch('http://localhost:5000/save-count', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId: userData.id, count }),
+      });
+    }
+  }, [count, userData]);
 
   useEffect(() => {
     if (WebApp.initDataUnsafe.user) {
       setUserData(WebApp.initDataUnsafe.user as UserData);
     }
+
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 5000);
+
+    return () => clearTimeout(timer);
   }, []);
 
   if (isLoading) {
@@ -65,7 +63,6 @@ function App() {
           count is {count}
         </button>
       </div>
-      <p>var 5</p>
     </>
   );
 }
