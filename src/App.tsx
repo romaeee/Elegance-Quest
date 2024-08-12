@@ -23,7 +23,7 @@ function App() {
       if (result) {
         return parseInt(result); // Вернуть загруженное значение
       } else {
-        return 0; // Вернуть 0, если данных нет
+        return 1; // Вернуть 0, если данных нет
       }
     } catch (error) {
       console.error('Failed to load cloud data:', error);
