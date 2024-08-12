@@ -13,19 +13,36 @@ interface UserData {
 
 function App() {
   const [isLoading, setIsLoading] = useState(true); // Состояние для экрана загрузки
-  const [count, setCount] = useState<number>(() => {
-    // Загрузка числа кликов
-    //const savedCount = localStorage.getItem('clickCount');
-    const savedCount = WebApp.CloudStorage.getItem('clickCount');
-    return savedCount !== null ? parseInt(savedCount) : 0;
-  });
-
+  const [count, setCount] = useState<number>(0); // Инициализируем count с 0
   const [userData, setUserData] = useState<UserData | null>(null);
 
-  // Сохранение числа кликов
+  // Загрузка числа кликов из CloudStorage
   useEffect(() => {
-    WebApp.CloudStorage.setItem('clickCount', count.toString())
-    //localStorage.setItem('clickCount', count.toString());
+    const loadClickCount = async () => {
+      try {
+        const savedCount = await WebApp.cloudStorage.get('clickCount');
+        if (savedCount !== null) {
+          setCount(parseInt(savedCount));
+        }
+      } catch (error) {
+        console.error('Ошибка при загрузке данных из CloudStorage:', error);
+      }
+    };
+
+    loadClickCount();
+  }, []);
+
+  // Сохранение числа кликов в CloudStorage
+  useEffect(() => {
+    const saveClickCount = async () => {
+      try {
+        await WebApp.cloudStorage.set('clickCount', count.toString());
+      } catch (error) {
+        console.error('Ошибка при сохранении данных в CloudStorage:', error);
+      }
+    };
+
+    saveClickCount();
   }, [count]);
 
   // Получение данных пользователя из Telegram WebApp
@@ -57,7 +74,7 @@ function App() {
           count is {count}
         </button>
       </div>
-      <p>var 4</p>
+      <p>var 5</p>
     </>
   );
 }
