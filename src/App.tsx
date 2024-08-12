@@ -21,13 +21,15 @@ function App() {
     try {
       const result = await WebApp.cloudStorage.get('clickCount');
       if (result) {
-        return parseInt(result); // Вернуть загруженное значение
+        setCount(parseInt(result)); // Установить загруженное значение
       } else {
-        return 1; // Вернуть 0, если данных нет
+        setCount(0); // Установить 0, если данных нет
       }
     } catch (error) {
       console.error('Failed to load cloud data:', error);
-      return 2; // Вернуть 0 в случае ошибки
+      setCount(0); // Установить 0 в случае ошибки
+    } finally {
+      setIsLoading(false); // Завершить загрузку после получения данных
     }
   };
 
@@ -42,23 +44,17 @@ function App() {
 
   // Функция для загрузки данных пользователя
   const loadUserData = () => {
-    return new Promise<void>((resolve) => {
-      if (WebApp.initDataUnsafe.user) {
-        setUserData(WebApp.initDataUnsafe.user as UserData);
-      }
-      resolve();
-    });
+    if (WebApp.initDataUnsafe.user) {
+      setUserData(WebApp.initDataUnsafe.user as UserData);
+    }
   };
 
   // Загрузка всех данных
   useEffect(() => {
     const loadAppData = async () => {
       await new Promise((resolve) => setTimeout(resolve, 1000)); // Задержка 1 секунда
-      const loadedCount = await loadCloudData(); // Загрузка счётчика
-      await loadUserData(); // Загрузка данных пользователя
-
-      setCount(loadedCount); // Установить загруженное значение счётчика
-      setIsLoading(false); // Завершить загрузку после получения всех данных
+      loadUserData(); // Загрузка данных пользователя
+      await loadCloudData(); // Загрузка счётчика
     };
 
     loadAppData();
